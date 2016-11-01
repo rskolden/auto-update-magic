@@ -1,44 +1,34 @@
 #!/bin/bash
 
-###
-#
-#            Name:  auto_update_magic.sh
-#     Description:  A script and LaunchDaemon pair designed to leverage
-#                   autopkg, AutoPkgr, JSSImporter, and Casper to keep apps on
-#                   Mac endpoints up to date automatically. Details at:
-#                   https://github.com/homebysix/auto-update-magic
-#          Author:  Elliot Jordan <elliot@lindegroup.com>
-#         Created:  2013-03-24
-#   Last Modified:  2016-06-14
-#         Version:  2.1.2
-#
-###
+if [[ -e /Applications/Utilities/cocoaDialog.app ]]; then
+CD="/Applications/Utilities/cocoaDialog.app/Contents/MacOS/cocoaDialog"
+else
+echo "no cocoaDialog found"
+exit 1
+fi
 
+Today=`date`
+echo "Today value: $Today"
+CurrentDate=${Today:8:2}
+echo "CurrentDate value: $CurrentDate"
 
+if [[ -e /usr/local/AutoUpdateMagic/apps.txt ]]; then
 ################################## SETTINGS ###################################
 
 # Add a line here for each auto update custom trigger. This is almost always
 # the same as the recipe's name. Trigger and recipe names may contain spaces.
-TRIGGERS=`cat apps.txt`
+#TRIGGERS=`cat /usr/local/AutoUpdateMagic/apps.txt`
 
 # For each recipe above, add a corresponding line here for each "blocking
 # application" (apps/processes that must not be open if the app is to be
 # updated automatically). You can add multiple comma-separated applications per
 # line. Use `pgrep -ix _____` to test whether the blocking behaves as expected.
 BLOCKING_APPS=(
-
     # "Safari$, Firefox" # blocking apps for Flash
-
     # "Firefox" # blocking apps for Firefox
-
     # "Google Chrome" # blocking apps for Chrome
-
     # "Safari$, Firefox" # blocking apps for Java 7
-
     # "Safari$, Firefox" # blocking apps for Java 8
-
-    # "MSN Messenger, Microsoft Lync, Microsoft Cert Manager, Microsoft Chart Converter, Microsoft Clip Gallery, Microsoft Entourage, Microsoft Outlook, Microsoft Error Reporting, Microsoft Excel, Microsoft Graph, Microsoft Help Viewer, Microsoft Language Register, Microsoft Communicator, Microsoft Messenger, Microsoft PowerPoint, Microsoft Query, Microsoft Word, My Day, Organization Chart, Expression Media, Remote Desktop Connection" # blocking apps for latest Office 2011 update
-
 )
 
 # Preference list that will be used to track last auto update timestamp.
@@ -91,25 +81,32 @@ fi
 ################################ MAIN PROCESS #################################
 
 # Count how many recipes we need to process.
-RECIPE_COUNT=${#TRIGGERS[@]}
+RECIPE_COUNT=`cat /usr/local/AutoUpdateMagic/apps.txt | wc -l`
+#${#TRIGGERS[@]}
 
 # Save the default internal field separator.
 OLDIFS=$IFS
 
+# Inform user that we are looking for updates
+$CD bubble --title "Looking for app updates" --text "Looking for app updates and installing if available" --icon info --alpha 0.8
+
+# Read TRIGGERS line by line and process them in order
+while read -r App; do
+
 # Begin iterating through recipes.
-for (( i = 0; i < RECIPE_COUNT; i++ )); do
+#for (( i = 0; i < RECIPE_COUNT; i++ )); do
 
     echo " " # for some visual separation between apps in the log
 
     # Iterate through each recipe's corresponding blocking apps.
-    echo "Checking for apps that would block the ${TRIGGERS[$i]} update..."
+    echo "Checking for apps that would block the $App update..."
     IFS=","
     UPDATE_BLOCKED=false
 
-    for APP in ${BLOCKING_APPS[$i]}; do
+    for BLOCKEDAPP in ${BLOCKING_APPS[$i]}; do
 
         # Strip leading spaces from app name.
-        APP_CLEAN="$(echo "$APP" | sed 's/^ *//')"
+        APP_CLEAN="$(echo "$BLOCKEDAPP" | sed 's/^ *//')"
 
         # Check whether the app is running.
         if pgrep -ix "$APP_CLEAN" &> /dev/null; then
@@ -125,15 +122,28 @@ for (( i = 0; i < RECIPE_COUNT; i++ )); do
     # Only run the auto-update policy if no blocking apps are running.
     if [[ $UPDATE_BLOCKED == false ]]; then
         if [[ $DEBUG_MODE == false ]]; then
-            echo "No apps are blocking the ${TRIGGERS[$i]} update. Calling policy trigger autoupdate-${TRIGGERS[$i]}."
-            $jamf policy -event "autoupdate-${TRIGGERS[$i]}"
+            # echo "No apps are blocking the $App update. Calling policy trigger autoupdate-$App."
+            $jamf policy -event "autoupdate-$App"
+            echo "Getting entry from log file"
+              AppUpdate=`cat /var/log/jamf.log | grep "Successfully installed $App" | grep "$CurrentDate"`
+                echo "$AppUpdate"
+              echo "Getting date from log file"
+                AppUpdateDay=${AppUpdate:8:2}
+                  echo "$AppUpdateDay"
+
+                echo "Compare log file and todays date, if match, show message"
+                if [[ $AppUpdateDay = $CurrentDate ]]; then
+                  echo "Dates matches"
+                  $CD bubble --title "$App updated" --text "Please restart the app to apply the latest version" --icon info --alpha 0.8
+                fi
         else
-            echo "[DEBUG] No apps are blocking the ${TRIGGERS[$i]} update. This is the point where we would run:"
-            echo "    $jamf policy -event \"autoupdate-${TRIGGERS[$i]}\""
+            echo "[DEBUG] No apps are blocking the $App update. This is the point where we would run:"
+            echo "    $jamf policy -event \"autoupdate-$App\""
         fi
     fi
 
-done # End iterating through recipes.
+#done # End iterating through recipes.
+done <"/usr/local/AutoUpdateMagic/apps.txt"
 
 # Reset back to default internal field separator.
 IFS=$OLDIFS
@@ -141,6 +151,10 @@ IFS=$OLDIFS
 # Record the timestamp of the last auto update check.
 if [[ $DEBUG_MODE == false ]]; then
     /usr/bin/defaults write "$PLIST" LastAutoUpdate -date "$(date)"
+fi
+
+else
+  echo "No Apps-file found, closing script"
 fi
 
 exit 0
