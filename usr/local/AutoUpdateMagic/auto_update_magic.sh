@@ -12,12 +12,14 @@ echo "Today value: $Today"
 CurrentDate=${Today:8:2}
 echo "CurrentDate value: $CurrentDate"
 
-if [[ -e /usr/local/AutoUpdateMagic/apps.txt ]]; then
+ScriptPath="/usr/local/AutoUpdateMagic"
+
+if [[ -e "$ScriptPath"/apps.txt ]]; then
 ################################## SETTINGS ###################################
 
 # Add a line here for each auto update custom trigger. This is almost always
 # the same as the recipe's name. Trigger and recipe names may contain spaces.
-#TRIGGERS=`cat /usr/local/AutoUpdateMagic/apps.txt`
+#TRIGGERS=`cat "$ScriptPath"/apps.txt`
 
 # For each recipe above, add a corresponding line here for each "blocking
 # application" (apps/processes that must not be open if the app is to be
@@ -81,7 +83,7 @@ fi
 ################################ MAIN PROCESS #################################
 
 # Count how many recipes we need to process.
-RECIPE_COUNT=`cat /usr/local/AutoUpdateMagic/apps.txt | wc -l`
+RECIPE_COUNT=`cat "$ScriptPath"/apps.txt | wc -l`
 #${#TRIGGERS[@]}
 
 # Save the default internal field separator.
@@ -143,7 +145,7 @@ while read -r App; do
     fi
 
 #done # End iterating through recipes.
-done <"/usr/local/AutoUpdateMagic/apps.txt"
+done <"$ScriptPath/apps.txt"
 
 # Reset back to default internal field separator.
 IFS=$OLDIFS
