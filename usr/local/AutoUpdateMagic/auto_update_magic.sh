@@ -10,6 +10,28 @@ fi
 Today=`date`
 echo "Today value: $Today"
 CurrentDate=${Today:8:2}
+
+# Quick and dirty format of date
+if [[ "$CurrentDate" = " 1" ]]; then
+  CurrentDate="01"
+elif [[ "$CurrentDate" = " 2" ]]; then
+  CurrentDate="02"
+elif [[ "$CurrentDate" = " 3" ]]; then
+  CurrentDate="03"
+elif [[ "$CurrentDate" = " 4" ]]; then
+  CurrentDate="04"
+elif [[ "$CurrentDate" = " 5" ]]; then
+  CurrentDate="05"
+elif [[ "$CurrentDate" = " 6" ]]; then
+  CurrentDate="06"
+elif [[ "$CurrentDate" = " 7" ]]; then
+  CurrentDate="07"
+elif [[ "$CurrentDate" = " 8" ]]; then
+  CurrentDate="08"
+elif [[ "$CurrentDate" = " 9" ]]; then
+  CurrentDate="09"
+fi
+
 echo "CurrentDate value: $CurrentDate"
 
 ScriptPath="/usr/local/AutoUpdateMagic"
