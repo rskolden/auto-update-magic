@@ -7,20 +7,34 @@ echo "no cocoaDialog found"
 exit 1
 fi
 
-# Set script path
-ScriptPath="/usr/local/AutoUpdateMagic"
+Today=`date`
+echo "Today value: $Today"
+CurrentDate=${Today:8:2}
 
-# Set log file location
-LogFile="/usr/local/AutoUpdateMagic/update.log"
-
-# Clear log file if found
-if [[ ! -e $LogFile ]]; then
-rm -f $LogFile
+# Quick and dirty format of date
+if [[ "$CurrentDate" = " 1" ]]; then
+  CurrentDate="01"
+elif [[ "$CurrentDate" = " 2" ]]; then
+  CurrentDate="02"
+elif [[ "$CurrentDate" = " 3" ]]; then
+  CurrentDate="03"
+elif [[ "$CurrentDate" = " 4" ]]; then
+  CurrentDate="04"
+elif [[ "$CurrentDate" = " 5" ]]; then
+  CurrentDate="05"
+elif [[ "$CurrentDate" = " 6" ]]; then
+  CurrentDate="06"
+elif [[ "$CurrentDate" = " 7" ]]; then
+  CurrentDate="07"
+elif [[ "$CurrentDate" = " 8" ]]; then
+  CurrentDate="08"
+elif [[ "$CurrentDate" = " 9" ]]; then
+  CurrentDate="09"
 fi
 
-# Route all logs to new log file
-exec 3>&1 1>>${LogFile} 2>&1
+echo "CurrentDate value: $CurrentDate"
 
+ScriptPath="/usr/local/AutoUpdateMagic"
 
 if [[ -e "$ScriptPath"/apps.txt ]]; then
 ################################## SETTINGS ###################################
@@ -91,7 +105,7 @@ fi
 ################################ MAIN PROCESS #################################
 
 # Count how many recipes we need to process.
-#RECIPE_COUNT=`cat "$ScriptPath"/apps.txt | wc -l`
+RECIPE_COUNT=`cat "$ScriptPath"/apps.txt | wc -l`
 #${#TRIGGERS[@]}
 
 # Save the default internal field separator.
@@ -135,11 +149,15 @@ while read -r App; do
             # echo "No apps are blocking the $App update. Calling policy trigger autoupdate-$App."
             $jamf policy -event "autoupdate-$App"
             echo "Getting entry from log file"
-              AppUpdate=`cat $LogFile | grep "Successfully installed $App"`
+              AppUpdate=`cat /var/log/jamf.log | grep "Successfully installed $App" | grep "$CurrentDate"`
                 echo "$AppUpdate"
+              echo "Getting date from log file"
+                AppUpdateDay=${AppUpdate:8:2}
+                  echo "$AppUpdateDay"
 
-                if [[ $AppUpdate != "" ]]; then
-                  echo "$App Successfully installed"
+                echo "Compare log file and todays date, if match, show message"
+                if [[ $AppUpdateDay = $CurrentDate ]]; then
+                  echo "Dates matches"
                   $CD bubble --title "$App updated" --text "Please restart the app to apply the latest version" --icon info --alpha 0.8
                 fi
         else

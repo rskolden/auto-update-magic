@@ -16,7 +16,6 @@ Google Chrome
 LaunchControl
 Microsoft Excel
 MAU Removal
-Microsoft Lync
 Microsoft OneNote
 MAU Removal
 Microsoft Outlook
@@ -27,7 +26,6 @@ Microsoft Word
 MAU Removal
 OmniDiskSweeper
 Oracle Java 8
-Recipe Robot
 Silverlight
 Sketch
 Skype
