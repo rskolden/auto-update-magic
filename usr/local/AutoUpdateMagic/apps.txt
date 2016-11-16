@@ -5,15 +5,11 @@ Adobe Shockwave Player
 Alfred 3
 Atom
 Audacity
-AutoCasperNBI
-AutoDMG
 Cyberduck
 Dropbox
 FileZilla
 Firefox
-Gas Mask
 Google Chrome
-LaunchControl
 Microsoft Excel
 MAU Removal
 Microsoft OneNote
@@ -24,12 +20,9 @@ Microsoft PowerPoint
 MAU Removal
 Microsoft Word
 MAU Removal
-OmniDiskSweeper
 Oracle Java 8
 Silverlight
-Sketch
 Skype
-Skype for Business
 Stuffit Expander
 VLC
 Text Wrangler
