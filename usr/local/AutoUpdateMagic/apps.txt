@@ -10,17 +10,7 @@ Dropbox
 FileZilla
 Firefox
 Google Chrome
-Microsoft Excel
-MAU Removal
-Microsoft OneNote
-MAU Removal
-Microsoft Outlook
-MAU Removal
-Microsoft PowerPoint
-MAU Removal
-Microsoft Word
-MAU Removal
-Oracle Java 8
+OracleJava8
 Silverlight
 Skype
 Stuffit Expander
